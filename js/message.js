@@ -11,7 +11,7 @@ angular.module('rapidchat')
    */
   function Message(msg, channel, time, from) {
 
-    this.commands = ['msg', 'roll', 'me']
+    this.commands = ['msg', 'roll', 'me', 'credit']
     this.channel = channel
     this.time = time || Date.now()
 
@@ -40,7 +40,9 @@ angular.module('rapidchat')
       return this
     }
 
-    if(msg.trim().substr(0, 1) == '/') {
+    msg = msg.trim()
+
+    if(msg.substr(0, 1) == '/') {
       msg = msg.split(' ')
 
       var cmd = msg.splice(0, 2)
@@ -50,7 +52,7 @@ angular.module('rapidchat')
       this.message = msg.join(' ')
       
       if(this.commands.indexOf(this.command) === -1) {
-        return new Error(this.command + " is not a command")
+        return new Error(this.command + " is not a command, try one of: " + this.commands.join(", "))
       }
     } else {
       this.message = msg
@@ -71,30 +73,46 @@ angular.module('rapidchat')
 
     var to = null
 
-    // /msg to, test if to is an existing user
-    if(this.command == 'msg') {
-      to = this.channel.users[this.argument]
-      if(!to) {
-        this.print(new Error("User "+this.argument+" does not exist"))
-        return false
-      }
+    switch (this.command) {
+      case 'credit':
+        this.message = ""+
+        "PGP: [openpgp.js](https://github.com/openpgpjs/openpgpjs) | Theme: [base16](https://github.com/chriskempson/base16-builder) & [knacss](www.knacss.com)"+
+        "[Github - rapidchat](https://github.com/rapidchat/rapidchat) "
 
-      this.message = '(*Whispers to '+this.argument+'*) ' + this.message
-    } else if(this.command == 'roll') {
-      var num 
+        this.print()
+        return Promise.resolve()
+        break;
+      case 'message':
+        // /msg to, test if to is an existing user
+        to = this.channel.users[this.argument]
+        if(!to) {
+          this.print(new Error("User "+this.argument+" does not exist"))
+          return false
+        }
 
-      if(this.argument == 'hack') {
-        num = 6 
-      } else {
-        //@todo 1d1, 4d2 etc.
-        var max = 6, min = 1
-        num = Math.floor(Math.random() * (max - min + 1) + min) 
-      }
+        this.message = '(*Whispers to '+this.argument+'*) ' + this.message
 
-      this.message = '(*Roll 1d6*) ' + num
-    } else if(this.command == 'me') {
-      this.message = '*' + [self.channel.user.userId, this.argument, this.message ].join(' ') + '*'
-      console.log(this.message);
+        break;
+      case 'roll':
+        var num 
+
+        if(this.argument == 'hack') {
+          num = 6 
+        } else {
+          //@todo 1d1, 4d2 etc.
+          var max = 6, min = 1
+          num = Math.floor(Math.random() * (max - min + 1) + min) 
+        }
+
+        this.message = '(*Roll 1d6*) ' + num
+
+        break;
+
+      case 'me':
+        this.message = '*' + [self.channel.user.userId, this.argument, this.message ].join(' ') + '*'
+
+        break;
+      default:
     }
 
     return openpgp.encryptMessage(Keyring.publicKeys.keys, this.message)
@@ -124,7 +142,7 @@ angular.module('rapidchat')
     openpgp.decryptMessage(privateKey, pgpMessage).then(function(plaintext) {
       self.message = plaintext
       self.print()
-      self.save()
+      return self.save()
       $log.debug("received msg: " + plaintext)
     }).catch(function(error) {
       $log.error('Error while decoding message', err) 
@@ -143,7 +161,6 @@ angular.module('rapidchat')
       channel: this.channel.current()
     }).then(function() {
       $log.debug('Saved user message')
-
       return Promise.resolve()
     })
     .catch(function(error) {
@@ -165,6 +182,7 @@ angular.module('rapidchat')
     }
 
     msg = marked(msg)
+    console.log(msg);
 
     for(var i in Smileys) {
       msg = msg.replace(i, '<img src="'+Smileys[i]+'">') 

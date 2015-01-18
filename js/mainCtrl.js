@@ -116,7 +116,12 @@ angular.module('rapidchat')
     }
 
     var m = new Message(msg, $scope.channel)  
-    if(m) { m.encode() }
+    if(m) { 
+      m.encode() 
+      var textbox = document.getElementById('textbox')
+      textbox.value = ''
+    }
+
   }
 
   /**

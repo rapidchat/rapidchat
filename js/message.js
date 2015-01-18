@@ -183,9 +183,6 @@ angular.module('rapidchat')
 
     this.channel.addMessage(this)
 
-    var textbox = document.getElementById('textbox')
-    textbox.value = ''
-
     return this
   }
 

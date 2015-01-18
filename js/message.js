@@ -94,13 +94,13 @@ angular.module('rapidchat')
       this.message = '(*Roll 1d6*) ' + num
     }
 
-    openpgp.encryptMessage(Keyring.publicKeys.keys, this.message)
+    return openpgp.encryptMessage(Keyring.publicKeys.keys, this.message)
     .then(function(pgpMessage) {
       //emit message from, pgpmessage, time, to
       Socket.emit('message', self.channel.user.userId, pgpMessage, self.time, to)
       $log.debug("emitted msg: " + self.message)
       self.print()
-      self.save()
+      return self.save()
     })
     .catch(function(error) {
       $log.error('Error while encoding message', err) 
@@ -139,10 +139,13 @@ angular.module('rapidchat')
       time: this.time,
       channel: this.channel.current()
     }).then(function() {
-      // $log.info('Saved user message')
+      $log.debug('Saved user message')
+
+      return Promise.resolve()
     })
     .catch(function(error) {
       $log.error('Error while saving message', err) 
+      return Promise.reject(error)
     })
   }
 

@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/rapidchat/rapidchat",
   "dependencies": {
+    "debug": "^2.1.1",
     "bluebird": "^2.7.1",
     "express": "^4.11.0",
     "gulp": "^3.8.10",

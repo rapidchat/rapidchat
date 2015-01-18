@@ -1,20 +1,24 @@
 var express = require('express');
 var app = express();
 var ssdb = require('ssdb')
-global.Promise = require('bluebird').Promise;
+var debug = require('debug')('rapidchat')
+
+//ssdb promise
+global.Promise = require('bluebird').Promise
 
 app.get('/', function(req, res){
-  res.sendFile(__dirname + '/index.html');
-});
-
-app.use(express.static(__dirname));
-
-var server = app.listen(3000, function() {
-  console.log('Listening on ' + 3000)
+  res.sendFile(__dirname + '/index.html')
 })
 
+app.use(express.static(__dirname))
+
+var server = app.listen(3000, function() {
+  debug('Listening on ' + 3000)
+})
+
+//@todo kick users + ip from channel
 var ssdb_client = ssdb.createClient().promisify()
-var io = require('socket.io')(server);
+var io = require('socket.io')(server)
 
 function updateUsers(channel) {
     return ssdb_client.hgetall(channel)
@@ -44,7 +48,7 @@ io.on('connection', function(socket) {
 
   socket.on('join', function(user) {
 
-    console.log(user.uid + " joining " + user.channel);
+    debug(user.uid + " joining " + user.channel)
 
     socket.uid = user.uid
     socket.channel = user.channel
@@ -58,13 +62,13 @@ io.on('connection', function(socket) {
 
       io.to(socket.channel).emit('joined', users)
 
-      console.log("Exchange ping from ", socket.id, "to => ", socket.channel)
+      debug("Exchange ping from ", socket.id, "to => ", socket.channel)
       socket.broadcast.to(socket.channel).emit('exchange ping', socket.id, user.publicKey)
     })
   })
 
   socket.on('exchange pong', function(to, key) {
-    console.log("Exchange pong from ", socket.id, "to =>", to)
+    debug("Exchange pong from ", socket.id, "to =>", to)
     socket.broadcast.to(to).emit('exchange pong', key)
   })
 
@@ -80,7 +84,7 @@ io.on('connection', function(socket) {
     ssdb_client.hdel(socket.channel, socket.uid).then(function() {
       return updateUsers(socket.channel)
     }).then(function(users) {
-      console.log('user left')
+      debug('user left')
       io.to(socket.channel).emit('left', {
         users: users
       })

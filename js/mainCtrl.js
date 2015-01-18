@@ -117,9 +117,9 @@ angular.module('rapidchat')
 
     var m = new Message(msg, $scope.channel)  
     if(m) { 
-      m.encode() 
-      var textbox = document.getElementById('textbox')
-      textbox.value = ''
+      m.encode().then(function() {
+        textbox.value = ''
+      })
     }
 
   }
@@ -149,10 +149,10 @@ angular.module('rapidchat')
   })
 
   $scope.userClick = function(user) {
-
     if(textbox) {
       textbox.value = textbox.value + user
     }
+    textbox.focus()
   }
 
   $scope.logout = function() {

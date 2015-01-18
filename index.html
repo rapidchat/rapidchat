@@ -1,0 +1,148 @@
+<!doctype html>
+<!--[if lte IE 7]> <html class="no-js ie67 ie678" lang="fr"> <![endif]-->
+<!--[if IE 8]> <html class="no-js ie8 ie678" lang="fr"> <![endif]-->
+<!--[if IE 9]> <html class="no-js ie9" lang="fr"> <![endif]-->
+<!--[if gt IE 9]> <!--><html class="no-js" lang="fr"> <!--<![endif]-->
+<head>
+    <meta charset="UTF-8">
+    <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+    <title>Rapidchat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link rel="stylesheet" href="css/knacss.css" media="all">
+    <link rel="stylesheet" href="css/themes/base16-3024.rc.css" media="all" disabled="disabled" id="theme-3024">
+    <link rel="stylesheet" href="css/themes/base16-apathy.rc.css" media="all" disabled="disabled" id="theme-apathy">
+    <link rel="stylesheet" href="css/themes/base16-ashes.rc.css" media="all" disabled="disabled" id="theme-ashes">
+    <link rel="stylesheet" href="css/themes/base16-atelierdune.rc.css" media="all" disabled="disabled" id="theme-atelierdune">
+    <link rel="stylesheet" href="css/themes/base16-atelierforest.rc.css" media="all" disabled="disabled" id="theme-atelierforest">
+    <link rel="stylesheet" href="css/themes/base16-atelierheath.rc.css" media="all" disabled="disabled" id="theme-atelierheath">
+    <link rel="stylesheet" href="css/themes/base16-atelierlakeside.rc.css" media="all" disabled="disabled" id="theme-atelierlakeside">
+    <link rel="stylesheet" href="css/themes/base16-atelierseaside.rc.css" media="all" disabled="disabled" id="theme-atelierseaside">
+    <link rel="stylesheet" href="css/themes/base16-bespin.rc.css" media="all" disabled="disabled" id="theme-bespin">
+    <link rel="stylesheet" href="css/themes/base16-brewer.rc.css" media="all" disabled="disabled" id="theme-brewer">
+    <link rel="stylesheet" href="css/themes/base16-bright.rc.css" media="all" disabled="disabled" id="theme-bright">
+    <link rel="stylesheet" href="css/themes/base16-chalk.rc.css" media="all" disabled="disabled" id="theme-chalk">
+    <link rel="stylesheet" href="css/themes/base16-codeschool.rc.css" media="all" disabled="disabled" id="theme-codeschool">
+    <link rel="stylesheet" href="css/themes/base16-colors.rc.css" media="all" disabled="disabled" id="theme-colors">
+    <link rel="stylesheet" href="css/themes/base16-default.rc.css" media="all" disabled="disabled" id="theme-default">
+    <link rel="stylesheet" href="css/themes/base16-eighties.rc.css" media="all" disabled="disabled" id="theme-eighties">
+    <link rel="stylesheet" href="css/themes/base16-embers.rc.css" media="all" disabled="disabled" id="theme-embers">
+    <link rel="stylesheet" href="css/themes/base16-flat.rc.css" media="all" disabled="disabled" id="theme-flat">
+    <link rel="stylesheet" href="css/themes/base16-google.rc.css" media="all" disabled="disabled" id="theme-google">
+    <link rel="stylesheet" href="css/themes/base16-grayscale.rc.css" media="all" disabled="disabled" id="theme-grayscale">
+    <link rel="stylesheet" href="css/themes/base16-greenscreen.rc.css" media="all" disabled="disabled" id="theme-greenscreen">
+    <link rel="stylesheet" href="css/themes/base16-harmonic16.rc.css" media="all" disabled="disabled" id="theme-harmonic16">
+    <link rel="stylesheet" href="css/themes/base16-hopscotch.rc.css" media="all" disabled="disabled" id="theme-hopscotch">
+    <link rel="stylesheet" href="css/themes/base16-isotope.rc.css" media="all" disabled="disabled" id="theme-isotope">
+    <link rel="stylesheet" href="css/themes/base16-londontube.rc.css" media="all" disabled="disabled" id="theme-londontube">
+    <link rel="stylesheet" href="css/themes/base16-marrakesh.rc.css" media="all" disabled="disabled" id="theme-marrakesh">
+    <link rel="stylesheet" href="css/themes/base16-mocha.rc.css" media="all" disabled="disabled" id="theme-mocha">
+    <link rel="stylesheet" href="css/themes/base16-monokai.rc.css" media="all" disabled="disabled" id="theme-monokai">
+    <link rel="stylesheet" href="css/themes/base16-ocean.rc.css" media="all" disabled="disabled" id="theme-ocean">
+    <link rel="stylesheet" href="css/themes/base16-paraiso.rc.css" media="all" disabled="disabled" id="theme-paraiso">
+    <link rel="stylesheet" href="css/themes/base16-pop.rc.css" media="all" disabled="disabled" id="theme-pop">
+    <link rel="stylesheet" href="css/themes/base16-railscasts.rc.css" media="all" disabled="disabled" id="theme-railscasts">
+    <link rel="stylesheet" href="css/themes/base16-shapeshifter.rc.css" media="all" disabled="disabled" id="theme-shapeshifter">
+    <link rel="stylesheet" href="css/themes/base16-solarized.rc.css" media="all" disabled="disabled" id="theme-solarized">
+    <link rel="stylesheet" href="css/themes/base16-summerfruit.rc.css" media="all" disabled="disabled" id="theme-summerfruit">
+    <link rel="stylesheet" href="css/themes/base16-tomorrow.rc.css" media="all" disabled="disabled" id="theme-tomorrow">
+    <link rel="stylesheet" href="css/themes/base16-twilight.rc.css" media="all" disabled="disabled" id="theme-twilight">
+    <link rel="stylesheet" href="css/styles.css" media="all">
+</head>
+<body ng-app="rapidchat" ng-controller="MainCtrl" class="base00-background base05">
+
+  <div class="content">
+    <header id="header" role="banner" class="line pas mts">
+      <div class="center">
+        <span class="base0E">
+          {{user.userId}}-{{user.keyId}} (<a href="#" ng-click="channel.clearMessages()">Clear messages</a> | <a href="#" ng-click="logout()">Logout</a>)
+          <select name="theme" id="theme" ng-change="changeTheme()" ng-model="theme">
+            <option value="3024">3024</option>
+            <option value="apathy">Apathy</option>
+            <option value="ashes">Ashes</option>
+            <option value="atelierdune">Atelierdune</option>
+            <option value="atelierforest">Atelierforest</option>
+            <option value="atelierheath">Atelierheath</option>
+            <option value="atelierlakeside">Atelierlakeside</option>
+            <option value="atelierseaside">Atelierseaside</option>
+            <option value="bespin">Bespin</option>
+            <option value="brewer">Brewer</option>
+            <option value="bright">Bright</option>
+            <option value="chalk">Chalk</option>
+            <option value="codeschool">Codeschool</option>
+            <option value="colors">Colors</option>
+            <option value="default">Default</option>
+            <option value="eighties">Eighties</option>
+            <option value="embers">Embers</option>
+            <option value="flat">Flat</option>
+            <option value="google">Google</option>
+            <option value="grayscale">Grayscale</option>
+            <option value="greenscreen">Greenscreen</option>
+            <option value="harmonic16">Harmonic16</option>
+            <option value="hopscotch">Hopscotch</option>
+            <option value="isotope">Isotope</option>
+            <option value="londontube">Londontube</option>
+            <option value="marrakesh">Marrakesh</option>
+            <option value="mocha">Mocha</option>
+            <option value="monokai">Monokai</option>
+            <option value="ocean">Ocean</option>
+            <option value="paraiso">Paraiso</option>
+            <option value="pop">Pop</option>
+            <option value="railscasts">Railscasts</option>
+            <option value="shapeshifter">Shapeshifter</option>
+            <option value="solarized">Solarized</option>
+            <option value="summerfruit">Summerfruit</option>
+            <option value="tomorrow">Tomorrow</option>
+            <option value="twilight">Twilight</option>
+          </select>
+          <input type="checkbox" ng-model="white" ng-change="blackOrWhite()" title="Black or white?">
+        </span> 
+        <form ng-if="user.userId" ng-submit="join(channel.channel)" class="mod right">
+          <span style="line-height: 25px;" class="base0A mod left"># &nbsp;</span>
+          <input type="text" name="channel" id="channel" class="base0A" ng-model="channel.channel" />
+          <input type="submit" value="Join"/>
+        </form>
+      </div>
+    </header>
+
+    <section id="main" role="main" class="grid pam base02-border">
+      <div class="messages-box">
+        <div id="messages-container" class="base01-border">
+          <div class="messages">
+            <div class="message" ng-repeat="message in channel.messages">
+              <span class="right base03">({{message.time|date:'HH:mm:ss'}}) &nbsp;</span>
+              <span class="left" style="max-width: 95%">
+                <span ng-if="message.from !== channel.messages[$index-1].from" ng-bind-html="message.from|prettyUser:user.uid"></span>
+                <span ng-bind-html="message.message"></span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <aside class="txtright">
+          <userlist users="channel.online()"></userlist>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <footer id="footer" role="contentinfo" class="line pam txtcenter">
+
+    <form ng-if="!user.userId" ng-submit="login(user)">
+      <input type="text" name="userId" id="userId" ng-model="user.userId" />
+      <input type="submit" value="Login">
+    </form>
+
+    <form ng-show="user && channel.channel" id="text-area" ng-submit="message(msg)">
+      <textarea name="textbox" id="textbox" ng-model="msg" class="w80 pas" rows="3"></textarea>
+      <input type="submit" class="pam mts" value="Send"/>
+    </form>
+  </footer>
+
+  <script type="text/javascript" src="/socket.io/socket.io.js" charset="utf-8"></script>
+  <script type="text/javascript" src="build/vendor.js" charset="utf-8"></script>
+  <script type="text/javascript" src="./bower_components/openpgp/dist/openpgp_debug.js" charset="utf-8"></script>
+  <script type="text/javascript" src="build/main.js" charset="utf-8"></script>
+</body>
+</html>

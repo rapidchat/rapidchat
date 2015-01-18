@@ -1,0 +1,5 @@
+<ul>
+  <li ng-repeat="(user, socket) in users" ng-if="user != $parent.$parent.user.uid">
+  <a href="#" ng-click="userClick(user)">{{user}}</a>
+  </li>
+</ul>

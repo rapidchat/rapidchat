@@ -1,0 +1,32 @@
+{
+  "name": "rapidchat",
+  "version": "0.0.0",
+  "description": "Rapidchat",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rapidchat/rapidchat"
+  },
+  "author": "soyuka",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rapidchat/rapidchat/issues"
+  },
+  "homepage": "https://github.com/rapidchat/rapidchat",
+  "dependencies": {
+    "bluebird": "^2.7.1",
+    "express": "^4.11.0",
+    "gulp": "^3.8.10",
+    "mocha": "^2.1.0",
+    "socket.io": "^1.2.1",
+    "ssdb": "^0.1.7"
+  },
+  "devDependencies": {
+    "gulp-concat": "^2.4.3",
+    "gulp-ng-annotate": "^0.5.0",
+    "main-bower-files": "^2.5.0"
+  }
+}

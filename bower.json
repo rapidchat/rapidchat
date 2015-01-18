@@ -1,0 +1,35 @@
+{
+  "name": "rapidchat",
+  "main": "dist/main.js",
+  "version": "0.0.0",
+  "authors": [
+    "soyuka <soyuka@gmail.com>"
+  ],
+  "description": "Rapidchat",
+  "moduleType": [
+    "globals"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "openpgp": "~0.9.0",
+    "angular": "~1.3.9",
+    "angular-socket-io": "~0.7.0",
+    "dexie": "~1.0.2",
+    "ngstorage": "~0.3.0",
+    "angular-sanitize": "~1.3.9",
+    "marked": "~0.3.2"
+  },
+  "overrides": {
+    "openpgp": {
+      "ignore": true
+    }
+  }
+}

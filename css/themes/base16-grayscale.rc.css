@@ -1,0 +1,56 @@
+  
+.base00-background { background-color: #101010; }
+.base01-background { background-color: #252525; }
+.base02-background { background-color: #464646; }
+.base03-background { background-color: #525252; }
+.base04-background { background-color: #ababab; }
+.base05-background { background-color: #b9b9b9; }
+.base06-background { background-color: #e3e3e3; }
+.base07-background { background-color: #f7f7f7; }
+.base08-background { background-color: #7c7c7c; }
+.base09-background { background-color: #999999; }
+.base0A-background { background-color: #a0a0a0; }
+.base0B-background { background-color: #8e8e8e; }
+.base0C-background { background-color: #868686; }
+.base0D-background { background-color: #686868; }
+.base0E-background { background-color: #747474; }
+.base0F-background { background-color: #5e5e5e; }
+
+.base00 { color: #101010; }
+.base01 { color: #252525; }
+.base02 { color: #464646; }
+.base03 { color: #525252; }
+.base04 { color: #ababab; }
+.base05 { color: #b9b9b9; }
+.base06 { color: #e3e3e3; }
+.base07 { color: #f7f7f7; }
+.base08 { color: #7c7c7c; }
+.base09 { color: #999999; }
+.base0A { color: #a0a0a0; }
+.base0B { color: #8e8e8e; }
+a, .base0C { color: #868686; }
+a:hover, a:active, .base0D { color: #686868; }
+.base0E { color: #747474; }
+.base0F { color: #5e5e5e; }
+
+.base00-border { border-color: #101010; }
+.base01-border { border-color: #252525; }
+.base02-border { border-color: #464646; }
+.base03-border { border-color: #525252; }
+.base04-border { border-color: #ababab; }
+.base05-border { border-color: #b9b9b9; }
+.base06-border { border-color: #e3e3e3; }
+.base07-border { border-color: #f7f7f7; }
+.base08-border { border-color: #7c7c7c; }
+.base09-border { border-color: #999999; }
+.base0A-border { border-color: #a0a0a0; }
+.base0B-border { border-color: #8e8e8e; }
+.base0C-border { border-color: #868686; }
+.base0D-border { border-color: #686868; }
+.base0E-border { border-color: #747474; }
+.base0F-border { border-color: #5e5e5e; }
+
+input[type="submit"], button {
+    border:1px solid transparent; /** fix position issue **/
+    background-color: #686868;
+}

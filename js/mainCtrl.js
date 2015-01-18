@@ -177,6 +177,10 @@ angular.module('rapidchat')
 .filter('prettyUser', function($sce) {
 
   return function(user, me) {
+
+    if(!user)
+      return user;
+
     var u = user.split('-')
     var color = "base0B"
 

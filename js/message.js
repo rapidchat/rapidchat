@@ -11,7 +11,7 @@ angular.module('rapidchat')
    */
   function Message(msg, channel, time, from) {
 
-    this.commands = ['msg', 'roll']
+    this.commands = ['msg', 'roll', 'me']
     this.channel = channel
     this.time = time || Date.now()
 
@@ -40,7 +40,7 @@ angular.module('rapidchat')
       return this
     }
 
-    if(msg.substr(0, 1) == '/') {
+    if(msg.trim().substr(0, 1) == '/') {
       msg = msg.split(' ')
 
       var cmd = msg.splice(0, 2)
@@ -92,6 +92,9 @@ angular.module('rapidchat')
       }
 
       this.message = '(*Roll 1d6*) ' + num
+    } else if(this.command == 'me') {
+      this.message = '*' + [self.channel.user.userId, this.argument, this.message ].join(' ') + '*'
+      console.log(this.message);
     }
 
     return openpgp.encryptMessage(Keyring.publicKeys.keys, this.message)
@@ -157,11 +160,11 @@ angular.module('rapidchat')
    */
   Message.prototype.format = function format(msg) {
     
-    msg = marked(msg)
-
     if(msg instanceof Error) {
       msg = "<span class='base08'>"+msg.message+"</span>"
     }
+
+    msg = marked(msg)
 
     for(var i in Smileys) {
       msg = msg.replace(i, '<img src="'+Smileys[i]+'">') 

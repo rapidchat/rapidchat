@@ -109,9 +109,12 @@ ul li {
 }
 
 input {
-    background: transparent;
     border: 0;
     vertical-align: 0px;
+}
+
+input#channel {
+    background: transparent;
 }
 
 input:focus { outline: 0; }

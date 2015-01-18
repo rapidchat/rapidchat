@@ -18,6 +18,7 @@ angular.module('rapidchat')
         $scope.channel.join($localStorage.channel)
       }
 
+      $scope.channel.reset()
     })
   }
 
@@ -74,6 +75,7 @@ angular.module('rapidchat')
     User.login(user.userId).then(function(user) {
       $scope.user = user
       $scope.channel = new Channel(user, $scope)
+      $scope.channel.reset()
     })
   }
 

@@ -6,6 +6,9 @@ angular.module('rapidchat', ['btford.socket-io', 'ngStorage', 'ngSanitize'])
   var worker_path = './bower_components/openpgp/dist/'
   worker_path += debug ? 'openpgp.worker.js' : 'openpgp.worker.min.js'
   
+  openpgp.config.useWebCrypto = false
+  openpgp.config.keyserver = 'keyserver.rapidchat.net'
+
   openpgp.initWorker(worker_path)
 })
 .config(function($logProvider) {

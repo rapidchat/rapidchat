@@ -90,7 +90,7 @@ angular.module('rapidchat')
     //are beein applied fast
     $timeout(function() {
       if (self.$scope.$root.$$phase != '$apply' && self.$scope.$root.$$phase != '$digest') {
-          self.$scope.$apply();
+          self.$scope.$apply()
       }
 
       self.scrollToBottom()

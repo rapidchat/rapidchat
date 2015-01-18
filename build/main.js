@@ -1,7 +1,15 @@
 angular.module('rapidchat', ['btford.socket-io', 'ngStorage', 'ngSanitize'])
-.run(["$localStorage", "$rootScope", "User", function($localStorage, $rootScope, User) {
+.run(["$localStorage", "$rootScope", "User", "$log", function($localStorage, $rootScope, User, $log) {
+  //put this somewhere + logProvider
+  var debug = false
 
-  openpgp.initWorker('./build/openpgp.worker.js')
+  var worker_path = './bower_components/openpgp/dist/'
+  worker_path += debug ? 'openpgp.worker.js' : 'openpgp.worker.min.js'
+  
+  openpgp.initWorker(worker_path)
+}])
+.config(["$logProvider", function($logProvider) {
+  $logProvider.debugEnabled(false)
 }])
 .factory('db', function db() {
   var db = new Dexie('Rapidchat')
@@ -11,10 +19,12 @@ angular.module('rapidchat', ['btford.socket-io', 'ngStorage', 'ngSanitize'])
     messages: '++id,from,message,time,channel'
   })
 
+  //@todo see messages/channel
+  //this comes handy to start a new project put it somewhere else
   // db.delete().then(function() {
-  //   console.log('tdb del');
+  //   console.log('tdb del')
   // }).catch(function() {
-  //   console.log(arguments); 
+  //   console.log(arguments) 
   // })
 
   db.open()
@@ -29,31 +39,12 @@ angular.module('rapidchat', ['btford.socket-io', 'ngStorage', 'ngSanitize'])
       //  to garbage collection)
   })
 
-  return db;
+  return db
 })
 .factory('Socket', ["socketFactory", "$window", function Socket(socketFactory, $window) {
   var sock = io.connect($window.location.pathname.substr(1))
   return socketFactory({prefix: '', ioSocket: sock})
 }])
-.service('Keyring', function Keyring() {
-  var Keyring = new openpgp.Keyring() 
-
-  Keyring.addPublicKey = function addPublicKey(key) {
-    var keyId = key.primaryKey.getKeyId().toHex()
-
-    var exists = this.getKeysForId(keyId);
-
-    if(!exists) {
-      this.publicKeys.push(key) 
-      this.store();
-    } else {
-      console.log('Key was in the ring'); 
-    }
-  
-  }
-
-  return Keyring
-})
 
 angular.module('rapidchat')
 .factory('Channel', ["$localStorage", "Socket", "Message", "db", "$timeout", "$log", function channelFactory($localStorage, Socket, Message, db, $timeout, $log) {
@@ -147,7 +138,7 @@ angular.module('rapidchat')
     //are beein applied fast
     $timeout(function() {
       if (self.$scope.$root.$$phase != '$apply' && self.$scope.$root.$$phase != '$digest') {
-          self.$scope.$apply();
+          self.$scope.$apply()
       }
 
       self.scrollToBottom()
@@ -204,7 +195,28 @@ angular.module('rapidchat')
   return Channel
 }])
 
+angular.module('rapidchat')
+.service('Keyring', ["$log", function Keyring($log) {
+  var Keyring = new openpgp.Keyring() 
 
+  Keyring.addPublicKey = function addPublicKey(key) {
+    var keyId = key.primaryKey.getKeyId().toHex()
+
+    var exists = this.getKeysForId(keyId)
+
+    if(!exists) {
+      this.publicKeys.push(key) 
+      this.store()
+    } else {
+      $log.debug('Key was in the ring')
+    }
+  
+  }
+
+  return Keyring
+}])
+
+//@TODO LocalStore to indexdb (used in openpgp keyring)
 // GPG4Browsers - An OpenPGP implementation in javascript
 // Copyright (C) 2011 Recurity Labs GmbH
 // 
@@ -313,7 +325,7 @@ angular.module('rapidchat')
 angular.module('rapidchat')
 .controller('MainCtrl', ["$scope", "User", "Socket", "$localStorage", "$log", "Keyring", "Message", "Channel", "$rootScope", function mainController($scope, User, Socket, $localStorage, $log, Keyring, Message, Channel, $rootScope) {
 
-  var textbox = document.getElementById('textbox');
+  var textbox = document.getElementById('textbox')
   $scope.messages = []
   $scope.channel = {}
 
@@ -323,7 +335,7 @@ angular.module('rapidchat')
       $scope.user = user 
       $scope.channel = new Channel(user, $scope)
 
-      $log.debug('User logged in', $scope.user);
+      $log.debug('User logged in', $scope.user)
 
       //If we saved a channel too, join it
       if($localStorage.channel) {
@@ -422,7 +434,7 @@ angular.module('rapidchat')
    */
   $scope.message = function(msg) {
     if(!msg || !msg.length) {
-      return; 
+      return 
     }
 
     var m = new Message(msg, $scope.channel)  
@@ -461,7 +473,7 @@ angular.module('rapidchat')
   }
 
   $scope.logout = function() {
-    delete $localStorage.userId;
+    delete $localStorage.userId
   }
 
 }])
@@ -475,7 +487,7 @@ angular.module('rapidchat')
     },
     templateUrl: 'html/user-list.html',
     link: function linkUserlist(scope, element, attrs, controller) {
-      scope.userClick = scope.$parent.userClick;
+      scope.userClick = scope.$parent.userClick
     }
   }
 })
@@ -510,7 +522,7 @@ angular.module('rapidchat')
     this.channel = channel
     this.time = time || Date.now()
 
-    var err = this.preprocessor(msg, from);
+    var err = this.preprocessor(msg, from)
 
     if(err instanceof Error) {
       this.print(err)
@@ -562,7 +574,7 @@ angular.module('rapidchat')
    * @return void
    */
   Message.prototype.encode = function encode() {
-    var self = this;
+    var self = this
 
     var to = null
 
@@ -574,7 +586,7 @@ angular.module('rapidchat')
         return false
       }
 
-      this.message = '(*Whispers to '+this.argument+'*) ' + this.message;
+      this.message = '(*Whispers to '+this.argument+'*) ' + this.message
     } else if(this.command == 'roll') {
       var num 
 
@@ -586,18 +598,19 @@ angular.module('rapidchat')
         num = Math.floor(Math.random() * (max - min + 1) + min) 
       }
 
-      this.message = '(*Roll 1d6*) ' + num;
+      this.message = '(*Roll 1d6*) ' + num
     }
 
     openpgp.encryptMessage(Keyring.publicKeys.keys, this.message)
     .then(function(pgpMessage) {
       //emit message from, pgpmessage, time, to
       Socket.emit('message', self.channel.user.userId, pgpMessage, self.time, to)
+      $log.debug("emitted msg: " + self.message)
       self.print()
       self.save()
     })
     .catch(function(error) {
-      $log.error('Error while encoding message', err); 
+      $log.error('Error while encoding message', err) 
     })
 
     return this
@@ -616,9 +629,9 @@ angular.module('rapidchat')
       self.message = plaintext
       self.print()
       self.save()
-      // console.log("received msg: " + plaintext)
+      $log.debug("received msg: " + plaintext)
     }).catch(function(error) {
-      $log.error('Error while decoding message', err); 
+      $log.error('Error while decoding message', err) 
     })
   }
 

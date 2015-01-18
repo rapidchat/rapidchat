@@ -15,7 +15,7 @@ angular.module('rapidchat')
     this.channel = channel
     this.time = time || Date.now()
 
-    var err = this.preprocessor(msg, from);
+    var err = this.preprocessor(msg, from)
 
     if(err instanceof Error) {
       this.print(err)
@@ -67,7 +67,7 @@ angular.module('rapidchat')
    * @return void
    */
   Message.prototype.encode = function encode() {
-    var self = this;
+    var self = this
 
     var to = null
 
@@ -79,7 +79,7 @@ angular.module('rapidchat')
         return false
       }
 
-      this.message = '(*Whispers to '+this.argument+'*) ' + this.message;
+      this.message = '(*Whispers to '+this.argument+'*) ' + this.message
     } else if(this.command == 'roll') {
       var num 
 
@@ -91,18 +91,19 @@ angular.module('rapidchat')
         num = Math.floor(Math.random() * (max - min + 1) + min) 
       }
 
-      this.message = '(*Roll 1d6*) ' + num;
+      this.message = '(*Roll 1d6*) ' + num
     }
 
     openpgp.encryptMessage(Keyring.publicKeys.keys, this.message)
     .then(function(pgpMessage) {
       //emit message from, pgpmessage, time, to
       Socket.emit('message', self.channel.user.userId, pgpMessage, self.time, to)
+      $log.debug("emitted msg: " + self.message)
       self.print()
       self.save()
     })
     .catch(function(error) {
-      $log.error('Error while encoding message', err); 
+      $log.error('Error while encoding message', err) 
     })
 
     return this
@@ -121,9 +122,9 @@ angular.module('rapidchat')
       self.message = plaintext
       self.print()
       self.save()
-      // console.log("received msg: " + plaintext)
+      $log.debug("received msg: " + plaintext)
     }).catch(function(error) {
-      $log.error('Error while decoding message', err); 
+      $log.error('Error while decoding message', err) 
     })
   }
 

@@ -1,7 +1,7 @@
 angular.module('rapidchat')
 .controller('MainCtrl', function mainController($scope, User, Socket, $localStorage, $log, Keyring, Message, Channel, $rootScope) {
 
-  var textbox = document.getElementById('textbox');
+  var textbox = document.getElementById('textbox')
   $scope.messages = []
   $scope.channel = {}
 
@@ -11,7 +11,7 @@ angular.module('rapidchat')
       $scope.user = user 
       $scope.channel = new Channel(user, $scope)
 
-      $log.debug('User logged in', $scope.user);
+      $log.debug('User logged in', $scope.user)
 
       //If we saved a channel too, join it
       if($localStorage.channel) {
@@ -110,7 +110,7 @@ angular.module('rapidchat')
    */
   $scope.message = function(msg) {
     if(!msg || !msg.length) {
-      return; 
+      return 
     }
 
     var m = new Message(msg, $scope.channel)  
@@ -149,7 +149,7 @@ angular.module('rapidchat')
   }
 
   $scope.logout = function() {
-    delete $localStorage.userId;
+    delete $localStorage.userId
   }
 
 })
@@ -163,7 +163,7 @@ angular.module('rapidchat')
     },
     templateUrl: 'html/user-list.html',
     link: function linkUserlist(scope, element, attrs, controller) {
-      scope.userClick = scope.$parent.userClick;
+      scope.userClick = scope.$parent.userClick
     }
   }
 })

@@ -1,7 +1,15 @@
 angular.module('rapidchat', ['btford.socket-io', 'ngStorage', 'ngSanitize'])
-.run(function($localStorage, $rootScope, User) {
+.run(function($localStorage, $rootScope, User, $log) {
+  //put this somewhere + logProvider
+  var debug = false
 
-  openpgp.initWorker('./build/openpgp.worker.js')
+  var worker_path = './bower_components/openpgp/dist/'
+  worker_path += debug ? 'openpgp.worker.js' : 'openpgp.worker.min.js'
+  
+  openpgp.initWorker(worker_path)
+})
+.config(function($logProvider) {
+  $logProvider.debugEnabled(false)
 })
 .factory('db', function db() {
   var db = new Dexie('Rapidchat')
@@ -11,10 +19,12 @@ angular.module('rapidchat', ['btford.socket-io', 'ngStorage', 'ngSanitize'])
     messages: '++id,from,message,time,channel'
   })
 
+  //@todo see messages/channel
+  //this comes handy to start a new project put it somewhere else
   // db.delete().then(function() {
-  //   console.log('tdb del');
+  //   console.log('tdb del')
   // }).catch(function() {
-  //   console.log(arguments); 
+  //   console.log(arguments) 
   // })
 
   db.open()
@@ -29,28 +39,9 @@ angular.module('rapidchat', ['btford.socket-io', 'ngStorage', 'ngSanitize'])
       //  to garbage collection)
   })
 
-  return db;
+  return db
 })
 .factory('Socket', function Socket(socketFactory, $window) {
   var sock = io.connect($window.location.pathname.substr(1))
   return socketFactory({prefix: '', ioSocket: sock})
-})
-.service('Keyring', function Keyring() {
-  var Keyring = new openpgp.Keyring() 
-
-  Keyring.addPublicKey = function addPublicKey(key) {
-    var keyId = key.primaryKey.getKeyId().toHex()
-
-    var exists = this.getKeysForId(keyId);
-
-    if(!exists) {
-      this.publicKeys.push(key) 
-      this.store();
-    } else {
-      console.log('Key was in the ring'); 
-    }
-  
-  }
-
-  return Keyring
 })

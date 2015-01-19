@@ -76,7 +76,7 @@ angular.module('rapidchat')
     switch (this.command) {
       case 'credit':
         this.message = ""+
-        "PGP: [openpgp.js](https://github.com/openpgpjs/openpgpjs) | Theme: [base16](https://github.com/chriskempson/base16-builder) & [knacss](www.knacss.com)"+
+        "PGP: [openpgp.js](https://github.com/openpgpjs/openpgpjs) | Theme: [base16](https://github.com/chriskempson/base16-builder) & [knacss](www.knacss.com) <br>"+
         "[Github - rapidchat](https://github.com/rapidchat/rapidchat) "
 
         this.print()

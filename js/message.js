@@ -182,7 +182,6 @@ angular.module('rapidchat')
     }
 
     msg = marked(msg)
-    console.log(msg);
 
     for(var i in Smileys) {
       msg = msg.replace(i, '<img src="'+Smileys[i]+'">') 

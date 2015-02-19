@@ -12,8 +12,8 @@ app.get('/', function(req, res){
 
 app.use(express.static(__dirname))
 
-var server = app.listen(3000, function() {
-  debug('Listening on ' + 3000)
+var server = app.listen(3123, function() {
+  debug('Listening on ' + 3123)
 })
 
 //@todo kick users + ip from channel
@@ -44,9 +44,21 @@ function updateUsers(channel) {
    })
 }
 
+
+function handleError(prefix) {
+  return function print(error) {
+    console.error(prefix + error.name)
+    console.error(error.message)
+    console.error(error.stack) 
+  }
+}
+
 io.on('connection', function(socket) {
 
   socket.on('join', function(user) {
+
+    if(!user.channel || !user.uid)
+      return;
 
     debug(user.uid + " joining " + user.channel)
 
@@ -65,6 +77,7 @@ io.on('connection', function(socket) {
       debug("Exchange ping from ", socket.id, "to => ", socket.channel)
       socket.broadcast.to(socket.channel).emit('exchange ping', socket.id, user.publicKey)
     })
+    .catch(handleError('join'))
   })
 
   socket.on('exchange pong', function(to, key) {
@@ -76,8 +89,12 @@ io.on('connection', function(socket) {
     socket.broadcast.to(to ? to : socket.channel).emit('message', from, pgpMessage, time)
   })
 
+  //issue leave channel, a user can stay forever in a previous channel (chan te)
   socket.on('disconnect', function() {
 
+    //store more than 1 channel per socket
+    //on disconnect leave all channels! 
+    //set ttl user-channel ? 
     //leave channel, implicit?
     socket.leave(socket.channel)
 
@@ -89,7 +106,13 @@ io.on('connection', function(socket) {
         users: users
       })
     })
+    .catch(handleError('disconnect'))
   })
 
   socket.emit('chat message', 'Hello you')
 })
+
+process.on('uncaughtException', function (err) {
+    console.error(err)
+    process.exit(1)
+}) 

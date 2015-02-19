@@ -53,12 +53,25 @@ function handleError(prefix) {
   }
 }
 
-io.on('connection', function(socket) {
+var leaveChannel = function leaveChannel(socket) {
+  socket.leave(socket.channel)
 
-  socket.on('join', function(user) {
+  debug('User %s left channel %s', socket.uid, socket.channel)
 
-    if(!user.channel || !user.uid)
-      return;
+  return ssdb_client.hdel(socket.channel, socket.uid).then(function() {
+    return updateUsers(socket.channel)
+  }).then(function(users) {
+    debug('user left emit users %j', users)
+    io.to(socket.channel).emit('left', {
+      users: users
+    })
+
+    return new Promise.resolve()
+  })
+  .catch(handleError('leaveChannel'))
+}
+
+var joinChannel = function joinChannel(user, socket) {
 
     debug(user.uid + " joining " + user.channel)
 
@@ -78,6 +91,22 @@ io.on('connection', function(socket) {
       socket.broadcast.to(socket.channel).emit('exchange ping', socket.id, user.publicKey)
     })
     .catch(handleError('join'))
+}
+
+io.on('connection', function(socket) {
+
+  socket.on('join', function(user) {
+
+    if(!user.channel || !user.uid)
+      return;
+
+    if(socket.channel && socket.channel !== user.channel) {
+      return leaveChannel(socket).then(function() {
+        return joinChannel(user, socket)         
+      })
+    } else {
+      return joinChannel(user, socket) 
+    }
   })
 
   socket.on('exchange pong', function(to, key) {
@@ -89,30 +118,16 @@ io.on('connection', function(socket) {
     socket.broadcast.to(to ? to : socket.channel).emit('message', from, pgpMessage, time)
   })
 
-  //issue leave channel, a user can stay forever in a previous channel (chan te)
   socket.on('disconnect', function() {
-
-    //store more than 1 channel per socket
-    //on disconnect leave all channels! 
-    //set ttl user-channel ? 
-    //leave channel, implicit?
-    socket.leave(socket.channel)
-
-    ssdb_client.hdel(socket.channel, socket.uid).then(function() {
-      return updateUsers(socket.channel)
-    }).then(function(users) {
-      debug('user left')
-      io.to(socket.channel).emit('left', {
-        users: users
-      })
-    })
-    .catch(handleError('disconnect'))
+    leaveChannel(socket)
   })
-
-  socket.emit('chat message', 'Hello you')
 })
 
 process.on('uncaughtException', function (err) {
-    console.error(err)
+    if(!err instanceof Error)
+      err = new Error(err)
+
+    console.error(err.name + ' - ' + err.message)
+    console.error(err.stack)
     process.exit(1)
 }) 

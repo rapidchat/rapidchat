@@ -1,6 +1,22 @@
 angular.module('rapidchat')
 .factory('Message', function messageFactory($log, Socket, Keyring, db, Smileys) {
 
+
+  /**
+   * Escape regex caracters from a string
+   * Source:
+   * https://github.com/sindresorhus/escape-string-regexp/blob/master/index.js
+   */
+  var matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g
+
+  var escapeRegexString = function escapeRegexString(str) {
+    if (typeof str !== 'string') {
+      throw new TypeError('Expected a string')
+    }
+
+    return str.replace(matchOperatorsRe,  '\\$&')
+  }
+
   /**
    * @module Message
    * Stores and process message 
@@ -124,7 +140,7 @@ angular.module('rapidchat')
       return self.save()
     })
     .catch(function(error) {
-      $log.error('Error while encoding message', err) 
+      $log.error('Error while encoding message', error) 
     })
 
     return this
@@ -184,7 +200,7 @@ angular.module('rapidchat')
     msg = marked(msg)
 
     for(var i in Smileys) {
-      msg = msg.replace(i, '<img src="'+Smileys[i]+'">') 
+      msg = msg.replace(new RegExp(escapeRegexString(i), 'ig'), '<img src="'+Smileys[i]+'">') 
     }
 
     return msg

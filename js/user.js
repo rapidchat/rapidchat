@@ -33,12 +33,13 @@ angular.module('rapidchat')
      * @todo passphrase?
      * @return $q
      */
-    create: function(userId) {
+    create: function createUser(userId) {
 
       var defer = $q.defer()
+      var self = this
 
       //generate keys
-      return openpgp.generateKeyPair({
+      openpgp.generateKeyPair({
         numBits: 1024, 
         userId: userId, 
         passphrase: ''
@@ -69,18 +70,26 @@ angular.module('rapidchat')
         $log.error("Error while creating user", error)
         defer.reject(error)
       })
+      .then(function(id) {
+        return db.users.get(id)
+      })
+      .catch(function(error) {
+        $log.error("Error while retreiving user", error)
+        defer.reject(error)
+      })
       .then(function(user) {
-          getUserPublicKey(user)
-          $localStorage.userId = userId
+          user = self.getKeys(user)
+          $localStorage.userId = user.userId
           defer.resolve(user)
       })
 
+      return defer.promise
     },
     /**
      * Login user and set keys
      * @param string userId
      */
-    login: function login(userId) {
+    login: function loginUser(userId) {
       var defer = $q.defer()
       var self = this
 
@@ -94,9 +103,7 @@ angular.module('rapidchat')
 
         } else {
 
-          var keys = Keyring.getKeysForId(user.keyId)
-          user.keys = keys
-          getUserPublicKey(user)
+          user = self.getKeys(user)
 
           //use session id instead?
           if(!$localStorage.userId) {
@@ -112,6 +119,17 @@ angular.module('rapidchat')
       })
 
       return defer.promise
+    },
+    /**
+     * Get keys object for user - we need javascript functions to test isPublic()
+     * @param object user user from indexed db
+     */
+    getKeys: function getUserKeys(user) {
+      var keys = Keyring.getKeysForId(user.keyId)
+      user.keys = keys
+      getUserPublicKey(user)
+
+      return user
     },
     //@todo implement user deletion, keys etc.
     logout: function logout(userId) {

@@ -3,7 +3,7 @@ var app = express();
 var ssdb = require('ssdb')
 var debug = require('debug')('rapidchat')
 
-//ssdb promise
+//replace native promise
 global.Promise = require('bluebird').Promise
 
 app.get('/', function(req, res){
@@ -16,8 +16,9 @@ var server = app.listen(3123, function() {
   debug('Listening on ' + 3123)
 })
 
+var pool = ssdb.createPool({promisify: true})
 //@todo kick users + ip from channel
-var ssdb_client = ssdb.createClient().promisify()
+var ssdb_client = pool.acquire()
 var io = require('socket.io')(server)
 
 function updateUsers(channel) {

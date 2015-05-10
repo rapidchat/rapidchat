@@ -1,6 +1,6 @@
 # Rapidchat
 
-Openpgp crypted client-only discussions
+PGP crypted client-only chat system - http://rapidchat.net
 
 ## How does it work?
 

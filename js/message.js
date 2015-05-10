@@ -50,6 +50,9 @@ angular.module('rapidchat')
    */
   Message.prototype.preprocessor = function preProcessor(msg, from) {
   
+    //current user
+    this.from = this.channel.user.uid
+
     if(from) {
       this.message = msg 
       this.from = from
@@ -68,14 +71,12 @@ angular.module('rapidchat')
       this.message = msg.join(' ')
       
       if(this.commands.indexOf(this.command) === -1) {
-        return new Error(this.command + " is not a command, try one of: " + this.commands.join(", "))
+        this.message = this.command + " is not a command, try one of: " + this.commands.join(", ")
+        this.command = 'error'
       }
     } else {
       this.message = msg
     }
-
-    //current user
-    this.from = this.channel.user.uid
 
     return this
   }
@@ -90,6 +91,10 @@ angular.module('rapidchat')
     var to = null
 
     switch (this.command) {
+      case 'error':
+        this.print(new Error(this.message))
+        return Promise.resolve()
+        break;
       case 'credit':
         this.message = ""+
         "PGP: [openpgp.js](https://github.com/openpgpjs/openpgpjs) | Theme: [base16](https://github.com/chriskempson/base16-builder) & [knacss](www.knacss.com) <br>"+
@@ -98,12 +103,12 @@ angular.module('rapidchat')
         this.print()
         return Promise.resolve()
         break;
-      case 'message':
+      case 'msg':
         // /msg to, test if to is an existing user
         to = this.channel.users[this.argument]
         if(!to) {
           this.print(new Error("User "+this.argument+" does not exist"))
-          return false
+          return Promise.resolve()
         }
 
         this.message = '(*Whispers to '+this.argument+'*) ' + this.message
@@ -125,16 +130,19 @@ angular.module('rapidchat')
         break;
 
       case 'me':
-        this.message = '*' + [self.channel.user.userId, this.argument, this.message ].join(' ') + '*'
+        this.message = '*' + [ this.channel.user.userId, this.argument, this.message ].join(' ') + '*'
 
         break;
       default:
     }
 
-    return openpgp.encryptMessage(Keyring.publicKeys.keys, this.message)
-    .then(function(pgpMessage) {
+    return Keyring.getPublicKeysFromChannel(this.channel.channel)
+    .then(function encrypt(publicKeys) {
+      return openpgp.encryptMessage(publicKeys, self.message)
+    })
+    .then(function print(pgpMessage) {
       //emit message from, pgpmessage, time, to
-      Socket.emit('message', self.channel.user.userId, pgpMessage, self.time, to)
+      Socket.emit('message', self.channel.user.uid, pgpMessage, self.time, to)
       $log.debug("emitted msg: " + self.message)
       self.print()
       return self.save()
@@ -142,8 +150,6 @@ angular.module('rapidchat')
     .catch(function(error) {
       $log.error('Error while encoding message', error) 
     })
-
-    return this
   }
 
   /**
@@ -152,7 +158,7 @@ angular.module('rapidchat')
    */
   Message.prototype.decode = function decode() {
     var self = this
-    var privateKey = Keyring.privateKeys.getForId(this.channel.user.keyId)
+    var privateKey = this.channel.user.privateKey
     var pgpMessage = openpgp.message.readArmored(this.message)
 
     openpgp.decryptMessage(privateKey, pgpMessage).then(function(plaintext) {

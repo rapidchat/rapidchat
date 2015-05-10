@@ -7,6 +7,7 @@ angular.module('rapidchat')
     this.users = []
     this.messages = []
     this.$scope = $scope
+    this.joined = false
 
     return this
   }
@@ -22,13 +23,15 @@ angular.module('rapidchat')
 
     this.channel = channel
 
+    $log.debug('Joining', channel)
+
     $localStorage.channel = channel
 
     this.loadMessages()
     .then(function() {
       Socket.emit('join', {
         channel: channel,
-        uid: self.user.uid,
+        uid: self.user.userId + '-' + self.user.primaryKeyId,
         publicKey: self.user.publicKey.armor()
       })
     })

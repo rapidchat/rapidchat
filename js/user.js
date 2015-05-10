@@ -27,6 +27,9 @@ angular.module('rapidchat')
    * User Factory
    */
   var userFactory = {
+    user: null,
+    private: null,
+    public: null,
     /**
      * Creates a user
      * @param string userId the user id usually username
@@ -44,43 +47,42 @@ angular.module('rapidchat')
         userId: userId, 
         passphrase: ''
       })
-      .catch(function(error) {
-        $log.error("Error while generating key pair", error)
-        defer.reject(error)
-      })
-      .then(function(keys) {
-        var keyId = keys.key.primaryKey.getKeyId().toHex()
-        Keyring.privateKeys.push(keys.key)
-        Keyring.publicKeys.push(keys.key.toPublic())
-        //stores in localstorage
-        //@todo dbize LocalStore (see opengpg)
-        Keyring.store()
+      .then(function saveUser(keys) {
 
-        var user = {
-          userId: userId, 
-          keyId: keyId, 
-          uid: userId + '-' + keyId, 
-          keys: keys
+        self.private = keys.key
+        self.public = self.private.toPublic()
+
+        self.user = {
+          userId: userId,
+          dateAdded: Date.now(),
+          primaryKeyId: self.private.primaryKey.getKeyId().toHex()
         }
+        
+        $localStorage.userId = self.user.userId
 
         //add user to database
-        return db.users.add(user)
+        return db.users.add(self.user)
+      })
+      .then(function savePrivate() {
+        return Keyring.store('private')(self.private, self.user.userId)
+      })
+      .then(function savePublic() {
+        return Keyring.store('public')(self.public, self.user.userId)
+      })
+      .then(function saveAssociationUserKey() {
+        return db.userKeys.add({keyId: self.user.primaryKeyId, userId: self.user.userId}) 
+      })
+      .then(function() {
+        //those are javascrip objects
+        self.user.publicKey = self.public
+        self.user.privateKey = self.private
+        self.user.uid = self.user.userId + '-' + self.user.primaryKeyId
+
+        defer.resolve(self.user)
       })
       .catch(function(error) {
         $log.error("Error while creating user", error)
         defer.reject(error)
-      })
-      .then(function(id) {
-        return db.users.get(id)
-      })
-      .catch(function(error) {
-        $log.error("Error while retreiving user", error)
-        defer.reject(error)
-      })
-      .then(function(user) {
-          user = self.getKeys(user)
-          $localStorage.userId = user.userId
-          defer.resolve(user)
       })
 
       return defer.promise
@@ -93,25 +95,30 @@ angular.module('rapidchat')
       var defer = $q.defer()
       var self = this
 
-      db.users.where('userId').equals(userId).first()
+      db.users.where('userId')
+      .equals(userId).first()
       .then(function(user) {
 
-        if(!user) {
-          //no user create it
-          self.create(userId)
-          .then(defer.resolve)
-
-        } else {
-
-          user = self.getKeys(user)
-
+        if(user) {
           //use session id instead?
           if(!$localStorage.userId) {
             $localStorage.userId = userId 
           }
 
-          defer.resolve(user)
-        }
+          self.user = user
+          return Keyring.getKeysById(user.primaryKeyId)
+          .then(function(keys) {
+            self.user.publicKey = keys.public
+            self.user.privateKey = keys.private
+            self.user.uid = self.user.userId + '-' + self.user.primaryKeyId
+
+            return defer.resolve(self.user)
+          })
+        } 
+
+        //no user create it
+        return self.create(userId)
+        .then(defer.resolve)
       })
       .catch(function(error) {
         $log.error("Error while getting user for userId", userId, error)
@@ -119,17 +126,6 @@ angular.module('rapidchat')
       })
 
       return defer.promise
-    },
-    /**
-     * Get keys object for user - we need javascript functions to test isPublic()
-     * @param object user user from indexed db
-     */
-    getKeys: function getUserKeys(user) {
-      var keys = Keyring.getKeysForId(user.keyId)
-      user.keys = keys
-      getUserPublicKey(user)
-
-      return user
     },
     //@todo implement user deletion, keys etc.
     logout: function logout(userId) {

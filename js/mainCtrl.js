@@ -1,5 +1,5 @@
 angular.module('rapidchat')
-.controller('MainCtrl', function mainController($scope, User, Socket, $localStorage, $log, Keyring, Message, Channel, $rootScope) {
+.controller('MainCtrl', function mainController($scope, User, Socket, $localStorage, $log, Keyring, Message, Channel, $rootScope, $timeout) {
 
   var textbox = document.getElementById('textbox')
   $scope.messages = []
@@ -68,6 +68,7 @@ angular.module('rapidchat')
   }
 
   $scope.blackOrWhite()
+
   /**
    * Manual login function
    */
@@ -95,6 +96,7 @@ angular.module('rapidchat')
    */
   Socket.on('joined', function(users) {
     $scope.channel.people(users)
+    $scope.channel.joined = true
   })
 
   Socket.on('left', function(item) {
@@ -118,7 +120,13 @@ angular.module('rapidchat')
     var m = new Message(msg, $scope.channel)  
     if(m) { 
       m.encode().then(function() {
-        textbox.value = ''
+        $timeout(function() {
+          if ($scope.$root.$$phase != '$apply' && $scope.$root.$$phase != '$digest') {
+              $scope.$apply()
+          }
+
+          textbox.value = ''
+        })
       })
     }
 
@@ -137,21 +145,27 @@ angular.module('rapidchat')
    * ping: user received a key request, he sends pong back
    * pong: user received the ping response
    */
-  Socket.on('exchange ping', function(sid, armor) {
+  Socket.on('exchange ping', function(sid, armor, channel) {
     var key = openpgp.key.readArmored(armor).keys[0]
-    Keyring.addPublicKey(key)
-    Socket.emit('exchange pong', sid, $scope.user.publicKey.armor())
+    Keyring.storeChannel(channel)(key)
+    .then(function() {
+      $log.debug('Exchange ping received, sending pong pubkey')
+      Socket.emit('exchange pong', sid, $scope.user.publicKey.armor(), channel)
+    })
   })
 
-  Socket.on('exchange pong', function(armor) {
+  Socket.on('exchange pong', function(armor, channel) {
     var key = openpgp.key.readArmored(armor).keys[0]
-    Keyring.addPublicKey(key)
+    $log.debug('Exchange pong store key on channel', channel)
+    Keyring.storeChannel(channel)(key)
   })
 
+  /** Click on user **/
   $scope.userClick = function(user) {
     if(textbox) {
       textbox.value = textbox.value + user
     }
+
     textbox.focus()
   }
 
@@ -181,13 +195,12 @@ angular.module('rapidchat')
     if(!user)
       return user;
 
-    var u = user.split('-')
     var color = "base0B"
 
     if(user == me) {
       color = "base0E"
     }
 
-    return $sce.trustAsHtml('<span class="'+color+'" ng-click="userClick('+user+')">'+u[0]+': </span>')
+    return $sce.trustAsHtml('<span class="'+color+'">'+user+': </span>')
   }
 })

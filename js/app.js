@@ -1,8 +1,8 @@
 angular.module('rapidchat', ['btford.socket-io', 'ngStorage', 'ngSanitize'])
 .constant('rcconfig', {
-  debug: true
+  debug: false
 })
-.run(function($localStorage, $rootScope, User, $log, rcconfig) {
+.run(function($rootScope, $log, rcconfig) {
   
   // https://github.com/openpgpjs/openpgpjs#dependencies
   openpgp.config.useWebCrypto = false

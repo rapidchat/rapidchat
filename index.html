@@ -68,7 +68,9 @@
     <header id="header" role="banner" class="line pas mts">
       <div class="center">
         <span class="base0E">
-          {{user.userId}}-{{user.keyId}} (<a href="#" ng-click="channel.clearMessages()">Clear messages</a> | <a href="#" ng-click="logout()">Logout</a>)
+          <span ng-if="user.userId">
+            {{user.userId}}-{{user.primaryKeyId}} (<a href="#" ng-click="channel.clearMessages()">Clear messages</a> | <a href="#" ng-click="logout()">Logout</a>)
+          </span>
           <select name="theme" id="theme" ng-change="changeTheme()" ng-model="theme">
             <option value="3024">3024</option>
             <option value="apathy">Apathy</option>
@@ -125,7 +127,7 @@
             <div class="message" ng-repeat="message in channel.messages">
               <span class="right base03">({{message.time|date:'HH:mm:ss'}}) &nbsp;</span>
               <span class="left" style="max-width: 95%">
-                <span ng-if="message.from !== channel.messages[$index-1].from" ng-bind-html="message.from|prettyUser:user.uid"></span>
+                <span ng-if="message.from !== channel.messages[$index-1].from" ng-bind-html="message.from|prettyUser:user.uid" ng-click="userClick(message.from)"></span>
                 <span ng-bind-html="message.message"></span>
               </span>
             </div>
@@ -145,7 +147,7 @@
       <input type="submit" value="Login">
     </form>
 
-    <form ng-show="user && channel.channel" id="text-area" ng-submit="message(msg)">
+    <form ng-show="user && channel.joined" id="text-area" ng-submit="message(msg)">
       <textarea name="textbox" id="textbox" ng-model="msg" class="w80 pas" rows="3"></textarea>
       <input type="submit" class="pam mts" value="Send"/>
     </form>

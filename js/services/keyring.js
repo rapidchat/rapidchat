@@ -22,6 +22,9 @@ angular.module('rapidchat')
       ids.push(uk.keyId)
     })
     .then(function() {
+      if(!ids || ids.length === 0)
+        return defer.reject('No public keys for channel ' + channel)
+
       return db.publicKeys.where(':id').anyOf(ids).toArray()
     })
     .then(function(jsonKeys) {

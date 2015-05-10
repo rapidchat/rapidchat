@@ -26,24 +26,20 @@ node start index.js
 
 ## TODO: 
 
-SSL
-~~Move keyring to indexdb~~
-Lock channel<sup>*</sup>
-Add clear keys button (keyring and mine)
-keyring visibility (add you own keys, manage available keys)
-multiple channel
-recent channels
-alert title for new msgs
-message deletion? This should propagate deletion to make sure that every message
-has been deleted - not really possible to be 100% accurate if a user is not logged
-in anymore
-@todo in code
-@todo warn about security https://github.com/openpgpjs/openpgpjs#security-recommendations
-@todo save user recent channels
-
-Lock channel with password:
-
+- SSL
+- ~~Move keyring to indexdb~~
+- Lock channel
 Atm channel join/creation are the same
 We can't automagically define a channel administrator
 How could an admin be stored (store publickey?) ? 
-Improve ssdb security
+- Improve ssdb security
+- Add clear keys button (keyring and mine)
+- keyring visibility (add you own keys, manage available keys)
+- multiple channel
+- recent channels
+- alert title for new msgs
+- message deletion? This should propagate deletion to make sure that every message has been deleted - not really possible to be 100% accurate if a user is not logged in anymore
+- @todo in code
+- @todo warn about security https://github.com/openpgpjs/openpgpjs#security-recommendations
+- @todo save user recent channels
+

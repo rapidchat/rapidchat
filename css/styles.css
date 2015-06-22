@@ -74,7 +74,7 @@ section .messages-box {
     display: flex;
     flex-direction: row;
     width: 85%;
-    bottom: 130px;
+    bottom: 180px;
     top: 50px;
     left: 10%;
 }
